@@ -1,0 +1,159 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #0f0f0f;
+  color: #e8e8e8;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+header {
+  max-width: 900px;
+  margin: 0 auto 3rem;
+  border-left: 3px solid #e8405a;
+  padding-left: 1rem;
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+header .subtitle {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: #888;
+  line-height: 1.5;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.viz-section h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.35rem;
+}
+
+.viz-section .desc {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+#heatmap {
+  display: block;
+  width: 100%;
+}
+
+.dow-label {
+  fill: #555;
+  font-size: 11px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.month-label {
+  fill: #888;
+  font-size: 12px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.legend-label {
+  fill: #555;
+  font-size: 10px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.day-cell {
+  cursor: pointer;
+}
+
+.day-cell:hover {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.day-detail {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1rem;
+  position: relative;
+}
+
+.day-detail.hidden {
+  display: none;
+}
+
+.day-detail h3 {
+  font-size: 1rem;
+  color: #e8405a;
+  margin-bottom: 1rem;
+}
+
+#close-detail {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#close-detail:hover {
+  color: #fff;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stat .label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #555;
+}
+
+.stat .value {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.placeholder-section {
+  opacity: 0.4;
+}
+
+.placeholder-svg {
+  display: block;
+  width: 100%;
+  height: 180px;
+  background: #1a1a1a;
+  border: 1px dashed #2a2a2a;
+  border-radius: 4px;
+}

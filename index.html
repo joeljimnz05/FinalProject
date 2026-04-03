@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movement & Productivity</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Movement & Productivity</h1>
+    <p class="subtitle">
+      Exploring the relationship between daily physical activity and academic output —
+      Feb 10 through Apr 2, 2026.
+    </p>
+  </header>
+
+  <main>
+    <section class="viz-section">
+      <h2>Calendar Heatmap</h2>
+      <p class="desc">
+        Each cell represents one day. Color encodes step count: darker pink = more steps.
+        Click a cell to see that day's details.
+      </p>
+      <svg id="heatmap"></svg>
+      <div id="day-detail" class="day-detail hidden">
+        <button id="close-detail">✕</button>
+        <h3 id="detail-date"></h3>
+        <div class="detail-grid">
+          <div class="stat"><span class="label">Steps</span><span id="d-steps" class="value"></span></div>
+          <div class="stat"><span class="label">Miles</span><span id="d-miles" class="value"></span></div>
+          <div class="stat"><span class="label">Active Cal</span><span id="d-cal" class="value"></span></div>
+          <div class="stat"><span class="label">Flights</span><span id="d-flights" class="value"></span></div>
+          <div class="stat"><span class="label">Study Hrs</span><span id="d-study" class="value"></span></div>
+          <div class="stat"><span class="label">Assignments</span><span id="d-assign" class="value"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="viz-section placeholder-section">
+      <h2>Steps vs. Study Hours — Scatter Plot</h2>
+      <p class="desc">Coming soon: correlation view between daily movement and academic output.</p>
+      <svg id="scatter" class="placeholder-svg"></svg>
+    </section>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="js/heatmap.js"></script>
+</body>
+</html>
