@@ -3,11 +3,12 @@ import dataUrl from "url:../static/data.csv";
 const CELL = 38;
 const GAP = 4;
 const STEP = CELL + GAP;
-const MARGIN = { top: 40, right: 20, bottom: 50, left: 36 };
+const MARGIN = { top: 40, right: 20, bottom: 50, left: 32 };
 const DOW_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const colorScale = d3.scaleSequential()
-  .interpolator(d3.interpolateRgb("#2a0a10", "#e8405a"));
+const colorScale = d3.scaleSequential()  
+.interpolator(d3.interpolateRgb("#2a0a10", "#e8405a"));
+
 
 d3.csv(dataUrl, d => ({
   date:        new Date(d.date + "T00:00:00"),
@@ -23,6 +24,11 @@ d3.csv(dataUrl, d => ({
 
 function drawHeatmap(data) {
   const byDate = new Map(data.map(d => [fmtKey(d.date), d]));
+
+  const strokeScale = d3.scaleLinear()
+  .domain([0, d3.max(data, d => d.assignments)])
+  .range([0, 4])
+  .clamp(true);
 
   const minDate = d3.min(data, d => d.date);
   const maxDate = d3.max(data, d => d.date);
@@ -53,12 +59,11 @@ function drawHeatmap(data) {
       .text(label);
   });
 
-
   const monthsSeen = new Set();
 
   weeks.forEach((weekStart, wi) => {
     const daysInWeek = d3.timeDays(weekStart, d3.timeDay.offset(weekStart, 7));
-    const firstOfMonth = daysInWeek.find(d => d.getDate() <= 7);
+    const firstOfMonth = daysInWeek.find(d => d.getDate() <= 14);
     if (firstOfMonth) {
       const mo = firstOfMonth.getMonth();
       if (!monthsSeen.has(mo)) {
@@ -88,13 +93,44 @@ function drawHeatmap(data) {
         .attr("height", CELL)
         .attr("rx", 3)
         .attr("fill", d ? colorScale(d.steps) : "#1e1e1e")
+        .attr("stroke", d && d.assignments > 0 ? "#f0c040" : "none")
+        .attr("stroke-width", d ? strokeScale(d.assignments) : 0)
         .on("click", () => { if (d) showDetail(d); });
     }
   });
 
-  const legendW = 140;
-  const legendX = numWeeks * STEP - legendW;
-  const legendY = 7 * STEP + 16;
+const legendW = 140;
+const legendX = numWeeks * STEP - legendW;
+const legendY = 7 * STEP + 16;
+
+const assignLegendX = MARGIN.left;
+const assignLegendY = legendY + MARGIN.top - 24;
+
+const al = g.append("g").attr("transform", `translate(0,${legendY})`);
+[0, 1, 3, 5].forEach((val, i) => {
+  al.append("rect")
+    .attr("x", i * 36)
+    .attr("y", 0)
+    .attr("width", 14)
+    .attr("height", 14)
+    .attr("rx", 2)
+    .attr("fill", "#1e1e1e")
+    .attr("stroke", val > 0 ? "#f0c040" : "#333")
+    .attr("stroke-width", strokeScale(val));
+  al.append("text")
+    .attr("class", "legend-label")
+    .attr("x", i * 36 + 7)
+    .attr("y", 26)
+    .attr("text-anchor", "middle")
+    .text(val === 0 ? "0" : val === 5 ? "5+" : val);
+});
+al.append("text")
+  .attr("class", "legend-label")
+  .attr("x", 0)
+  .attr("y", 38)
+  .text("Assignments completed (border thickness)");
+
+
 
   const defs = svg.append("defs");
   const grad = defs.append("linearGradient").attr("id", "legend-grad");
