@@ -7,7 +7,7 @@ const DOW_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const colorScale = d3.scaleSequential()
   .interpolator(d3.interpolateRgb("#2a0a10", "#e8405a"));
 
-d3.csv("./data/data.csv", d => ({
+d3.csv("/static/data.csv", d => ({
   date:        new Date(d.date + "T00:00:00"),
   steps:       +d.steps,
   miles:       +d.distance_miles,
