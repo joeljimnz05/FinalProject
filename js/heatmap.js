@@ -1,3 +1,5 @@
+import dataUrl from "url:../static/data.csv";
+
 const CELL = 38;
 const GAP = 4;
 const STEP = CELL + GAP;
@@ -7,7 +9,7 @@ const DOW_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const colorScale = d3.scaleSequential()
   .interpolator(d3.interpolateRgb("#2a0a10", "#e8405a"));
 
-d3.csv("/static/data.csv", d => ({
+d3.csv(dataUrl, d => ({
   date:        new Date(d.date + "T00:00:00"),
   steps:       +d.steps,
   miles:       +d.distance_miles,
