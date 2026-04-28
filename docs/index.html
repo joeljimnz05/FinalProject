@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang=en><script type=importmap>{"imports":{"4QYv9":"./data.7ee8b9c5.csv"}}</script><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Movement &amp; Productivity</title><link rel=stylesheet href=FinalProject.a75016da.css><body>
+
+  <header>
+    <h1>Movement &amp; Productivity</h1>
+    <p class=subtitle>
+      Exploring the relationship between daily physical activity and academic output —
+      Feb 10 through Apr 2, 2026.
+    </p>
+  </header>
+
+  <main>
+    <section class=viz-section>
+      <h2> Dual-Encoded Calendar Heatmap</h2>
+      <p class=desc>
+        Each cell represents one day. Fill Color encodes step count: Lighter pink = more steps. Borders indicate num assignments completed; darker border = more assignments.
+        Click a cell to see that day's details.
+      </p>
+      <svg id=heatmap />
+      <div id=day-detail class="day-detail hidden">
+        <button id=close-detail>✕</button>
+        <h3 id=detail-date></h3>
+        <div class=detail-grid>
+          <div class=stat><span class=label>Steps</span><span id=d-steps class=value></span></div>
+          <div class=stat><span class=label>Miles</span><span id=d-miles class=value></span></div>
+          <div class=stat><span class=label>Active Cal</span><span id=d-cal class=value></span></div>
+          <div class=stat><span class=label>Flights</span><span id=d-flights class=value></span></div>
+          <div class=stat><span class=label>Study Hrs</span><span id=d-study class=value></span></div>
+          <div class=stat><span class=label>Assignments</span><span id=d-assign class=value></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="placeholder-section viz-section">
+      <h2>Steps &amp; Assignments Over Time</h2>
+      <p class=desc>
+        Daily step count and assignments completed plotted over time. Click a cell on the heatmap to highlight that day on the chart.
+      </p>
+      <svg id=linechart class=svg />
+    </section>
+
+  <script src=FinalProject.996edbd7.js type=module></script>
+
+</main>
