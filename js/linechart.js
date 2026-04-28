@@ -63,7 +63,7 @@ export function drawLineChart(data) {
     .attr("fill", "none")
     .attr("stroke", "#e8405a")
     .attr("stroke-width", 4)
-    .attr("opacity", 10)
+    .attr("opacity", 1)
     .attr("d", stepsLine);
 
   const assignLine = d3.line()
@@ -75,7 +75,7 @@ export function drawLineChart(data) {
     .attr("fill", "none")
     .attr("stroke", "#f0c040")
     .attr("stroke-width", 4)
-    .attr("opacity", 10)
+    .attr("opacity", 1)
     .attr("d", assignLine);
 
   g.selectAll(".dot-steps")
@@ -87,7 +87,7 @@ export function drawLineChart(data) {
     .attr("cy", d => ySteps(d.steps))
     .attr("r", 3)
     .attr("fill", "#e8405a")
-    .attr("opacity", 5);
+    .attr("opacity", 1);
 
   g.selectAll(".dot-assign")
     .data(data)

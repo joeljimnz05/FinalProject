@@ -733,209 +733,7 @@ _d3.csv((0, _dataCsvDefault.default), (d)=>({
     (0, _linechartJs.drawLineChart)(data);
 });
 
-},{"./heatmap.js":"f2sJD","./linechart.js":"3dpNk","d3":"eyk9f","url:../static/data.csv":"70QzG","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"f2sJD":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "drawHeatmap", ()=>drawHeatmap);
-var _linechart = require("./linechart");
-const CELL = 38;
-const GAP = 4;
-const STEP = CELL + GAP;
-const MARGIN = {
-    top: 40,
-    right: 20,
-    bottom: 50,
-    left: 32
-};
-const DOW_LABELS = [
-    "Mon",
-    "Tue",
-    "Wed",
-    "Thu",
-    "Fri",
-    "Sat",
-    "Sun"
-];
-const colorScale = d3.scaleSequential().interpolator(d3.interpolateRgb("#2a0a10", "#e8405a"));
-function drawHeatmap(data) {
-    const byDate = new Map(data.map((d)=>[
-            fmtKey(d.date),
-            d
-        ]));
-    const strokeScale = d3.scaleLinear().domain([
-        0,
-        d3.max(data, (d)=>d.assignments)
-    ]).range([
-        0,
-        4
-    ]).clamp(true);
-    const minDate = d3.min(data, (d)=>d.date);
-    const maxDate = d3.max(data, (d)=>d.date);
-    colorScale.domain([
-        0,
-        d3.max(data, (d)=>d.steps)
-    ]);
-    const startOfFirstWeek = d3.timeMonday.floor(minDate);
-    const weeks = d3.timeMondays(startOfFirstWeek, d3.timeDay.offset(maxDate, 7));
-    const numWeeks = weeks.length;
-    const svgWidth = MARGIN.left + numWeeks * STEP + MARGIN.right;
-    const svgHeight = MARGIN.top + 7 * STEP + MARGIN.bottom;
-    const svg = d3.select("#heatmap").attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`).attr("width", svgWidth).attr("height", svgHeight);
-    const g = svg.append("g").attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
-    DOW_LABELS.forEach((label, i)=>{
-        g.append("text").attr("class", "dow-label").attr("x", -6).attr("y", i * STEP + CELL / 2 + 4).attr("text-anchor", "end").text(label);
-    });
-    const monthsSeen = new Set();
-    weeks.forEach((weekStart, wi)=>{
-        const daysInWeek = d3.timeDays(weekStart, d3.timeDay.offset(weekStart, 7));
-        const firstOfMonth = daysInWeek.find((d)=>d.getDate() <= 14);
-        if (firstOfMonth) {
-            const mo = firstOfMonth.getMonth();
-            if (!monthsSeen.has(mo)) {
-                monthsSeen.add(mo);
-                g.append("text").attr("class", "month-label").attr("x", wi * STEP).attr("y", -10).text(d3.timeFormat("%B")(firstOfMonth));
-            }
-        }
-    });
-    weeks.forEach((weekStart, wi)=>{
-        for(let dow = 0; dow < 7; dow++){
-            const cellDate = d3.timeDay.offset(weekStart, dow);
-            if (cellDate < d3.timeDay.floor(minDate) || cellDate > maxDate) continue;
-            const key = fmtKey(cellDate);
-            const d = byDate.get(key);
-            g.append("rect").attr("class", "day-cell").attr("x", wi * STEP).attr("y", dow * STEP).attr("width", CELL).attr("height", CELL).attr("rx", 3).attr("fill", d ? colorScale(d.steps) : "#1e1e1e").attr("stroke", d && d.assignments > 0 ? "#f0c040" : "none").attr("stroke-width", d ? strokeScale(d.assignments) : 0).on("click", ()=>{
-                if (d) {
-                    (0, _linechart.highlightDay)(d.date);
-                    showDetail(d);
-                }
-            });
-        }
-    });
-    const legendW = 140;
-    const legendX = numWeeks * STEP - legendW;
-    const legendY = 7 * STEP + 16;
-    const assignLegendX = MARGIN.left;
-    const assignLegendY = legendY + MARGIN.top - 24;
-    const al = g.append("g").attr("transform", `translate(0,${legendY})`);
-    [
-        0,
-        1,
-        3,
-        5
-    ].forEach((val, i)=>{
-        al.append("rect").attr("x", i * 36).attr("y", 0).attr("width", 14).attr("height", 14).attr("rx", 2).attr("fill", "#1e1e1e").attr("stroke", val > 0 ? "#f0c040" : "#333").attr("stroke-width", strokeScale(val));
-        al.append("text").attr("class", "legend-label").attr("x", i * 36 + 7).attr("y", 26).attr("text-anchor", "middle").text(val === 0 ? "0" : val === 5 ? "5+" : val);
-    });
-    al.append("text").attr("class", "legend-label").attr("x", 0).attr("y", 38).text("Assignments completed (border thickness)");
-    const defs = svg.append("defs");
-    const grad = defs.append("linearGradient").attr("id", "legend-grad");
-    grad.append("stop").attr("offset", "0%").attr("stop-color", "#2a0a10");
-    grad.append("stop").attr("offset", "100%").attr("stop-color", "#e8405a");
-    const lg = g.append("g").attr("transform", `translate(${legendX},${legendY})`);
-    lg.append("rect").attr("width", legendW).attr("height", 8).attr("rx", 2).attr("fill", "url(#legend-grad)");
-    lg.append("text").attr("class", "legend-label").attr("y", 20).text("0 steps");
-    lg.append("text").attr("class", "legend-label").attr("x", legendW).attr("y", 20).attr("text-anchor", "end").text(d3.max(data, (d)=>d.steps).toLocaleString() + " steps");
-}
-function showDetail(d) {
-    document.getElementById("day-detail").classList.remove("hidden");
-    document.getElementById("detail-date").textContent = d3.timeFormat("%A, %B %-d, %Y")(d.date);
-    document.getElementById("d-steps").textContent = d.steps.toLocaleString();
-    document.getElementById("d-miles").textContent = d.miles.toFixed(2);
-    document.getElementById("d-cal").textContent = Math.round(d.calories).toLocaleString();
-    document.getElementById("d-flights").textContent = d.flights;
-    document.getElementById("d-study").textContent = d.studyHours;
-    document.getElementById("d-assign").textContent = d.assignments;
-}
-document.getElementById("close-detail").addEventListener("click", ()=>{
-    document.getElementById("day-detail").classList.add("hidden");
-});
-function fmtKey(date) {
-    return d3.timeFormat("%Y-%m-%d")(date);
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","./linechart":"3dpNk"}],"jnFvT":[function(require,module,exports,__globalThis) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule' || Object.prototype.hasOwnProperty.call(dest, key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"3dpNk":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "drawLineChart", ()=>drawLineChart);
-parcelHelpers.export(exports, "highlightDay", ()=>highlightDay);
-var _d3 = require("d3");
-function drawLineChart(data) {
-    const LM = {
-        top: 20,
-        right: 80,
-        bottom: 40,
-        left: 60
-    };
-    const LW = 900 - LM.left - LM.right;
-    const LH = 260 - LM.top - LM.bottom;
-    const svg = _d3.select("#linechart").attr("viewBox", `0 0 ${LW + LM.left + LM.right} ${LH + LM.top + LM.bottom}`).attr("width", LW + LM.left + LM.right).attr("height", LH + LM.top + LM.bottom);
-    svg.append("rect").attr("width", LW + LM.left + LM.right).attr("height", LH + LM.top + LM.bottom).attr("fill", "#0f0f0f");
-    const g = svg.append("g").attr("transform", `translate(${LM.left},${LM.top})`);
-    const xScale = _d3.scaleTime().domain(_d3.extent(data, (d)=>d.date)).range([
-        0,
-        LW
-    ]);
-    const ySteps = _d3.scaleLinear().domain([
-        0,
-        _d3.max(data, (d)=>d.steps)
-    ]).range([
-        LH,
-        0
-    ]);
-    const yAssign = _d3.scaleLinear().domain([
-        0,
-        _d3.max(data, (d)=>d.assignments)
-    ]).range([
-        LH,
-        0
-    ]);
-    g.append("g").attr("transform", `translate(0,${LH})`).call(_d3.axisBottom(xScale).ticks(_d3.timeMonth.every(1)).tickFormat(_d3.timeFormat("%b"))).call((g)=>g.select(".domain").attr("stroke", "#333")).call((g)=>g.selectAll(".tick line").attr("stroke", "#333")).selectAll("text").attr("fill", "#888");
-    g.append("g").call(_d3.axisLeft(ySteps).ticks(5)).call((g)=>g.select(".domain").attr("stroke", "#333")).call((g)=>g.selectAll(".tick line").attr("stroke", "#333")).selectAll("text").attr("fill", "#888");
-    g.append("g").attr("transform", `translate(${LW},0)`).call(_d3.axisRight(yAssign).ticks(5)).call((g)=>g.select(".domain").attr("stroke", "#333")).call((g)=>g.selectAll(".tick line").attr("stroke", "#333")).selectAll("text").attr("fill", "#888");
-    const stepsLine = _d3.line().x((d)=>xScale(d.date)).y((d)=>ySteps(d.steps));
-    g.append("path").datum(data).attr("fill", "none").attr("stroke", "#e8405a").attr("stroke-width", 4).attr("opacity", 10).attr("d", stepsLine);
-    const assignLine = _d3.line().x((d)=>xScale(d.date)).y((d)=>yAssign(d.assignments));
-    g.append("path").datum(data).attr("fill", "none").attr("stroke", "#f0c040").attr("stroke-width", 4).attr("opacity", 10).attr("d", assignLine);
-    g.selectAll(".dot-steps").data(data).enter().append("circle").attr("class", "dot-steps").attr("cx", (d)=>xScale(d.date)).attr("cy", (d)=>ySteps(d.steps)).attr("r", 3).attr("fill", "#e8405a").attr("opacity", 5);
-    g.selectAll(".dot-assign").data(data).enter().append("circle").attr("class", "dot-assign").attr("cx", (d)=>xScale(d.date)).attr("cy", (d)=>yAssign(d.assignments)).attr("r", 3).attr("fill", "#f0c040").attr("opacity", 5);
-}
-function highlightDay(date) {
-    const key = _d3.timeFormat("%Y-%m-%d")(date);
-    _d3.selectAll(".dot-steps").attr("r", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? 6 : 3).attr("stroke", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? "#fff" : "none").attr("stroke-width", 2).attr("opacity", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? 1 : 0.5);
-    _d3.selectAll(".dot-assign").attr("r", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? 6 : 3).attr("stroke", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? "#fff" : "none").attr("stroke-width", 2).attr("opacity", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? 1 : 0.5);
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","d3":"eyk9f"}],"eyk9f":[function(require,module,exports,__globalThis) {
+},{"d3":"eyk9f","./heatmap.js":"f2sJD","./linechart.js":"3dpNk","url:../static/data.csv":"70QzG","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"eyk9f":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _d3Array = require("d3-array");
@@ -1221,7 +1019,37 @@ function ascending(a, b) {
     return a == null || b == null ? NaN : a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"2bNbT":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"jnFvT":[function(require,module,exports,__globalThis) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule' || Object.prototype.hasOwnProperty.call(dest, key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"2bNbT":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>bisector);
@@ -24415,7 +24243,180 @@ function nopropagation(event) {
     event.stopImmediatePropagation();
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"70QzG":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"f2sJD":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "drawHeatmap", ()=>drawHeatmap);
+var _linechart = require("./linechart");
+var _d3 = require("d3");
+const CELL = 38;
+const GAP = 4;
+const STEP = CELL + GAP;
+const MARGIN = {
+    top: 40,
+    right: 20,
+    bottom: 50,
+    left: 32
+};
+const DOW_LABELS = [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun"
+];
+const colorScale = _d3.scaleSequential().interpolator(_d3.interpolateRgb("#2a0a10", "#e8405a"));
+function drawHeatmap(data) {
+    const byDate = new Map(data.map((d)=>[
+            fmtKey(d.date),
+            d
+        ]));
+    const strokeScale = _d3.scaleLinear().domain([
+        0,
+        _d3.max(data, (d)=>d.assignments)
+    ]).range([
+        0,
+        4
+    ]).clamp(true);
+    const minDate = _d3.min(data, (d)=>d.date);
+    const maxDate = _d3.max(data, (d)=>d.date);
+    colorScale.domain([
+        0,
+        _d3.max(data, (d)=>d.steps)
+    ]);
+    const startOfFirstWeek = _d3.timeMonday.floor(minDate);
+    const weeks = _d3.timeMondays(startOfFirstWeek, _d3.timeDay.offset(maxDate, 7));
+    const numWeeks = weeks.length;
+    const svgWidth = MARGIN.left + numWeeks * STEP + MARGIN.right;
+    const svgHeight = MARGIN.top + 7 * STEP + MARGIN.bottom;
+    const svg = _d3.select("#heatmap").attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`).attr("width", svgWidth).attr("height", svgHeight);
+    const g = svg.append("g").attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
+    DOW_LABELS.forEach((label, i)=>{
+        g.append("text").attr("class", "dow-label").attr("x", -6).attr("y", i * STEP + CELL / 2 + 4).attr("text-anchor", "end").text(label);
+    });
+    const monthsSeen = new Set();
+    weeks.forEach((weekStart, wi)=>{
+        const daysInWeek = _d3.timeDays(weekStart, _d3.timeDay.offset(weekStart, 7));
+        const firstOfMonth = daysInWeek.find((d)=>d.getDate() <= 14);
+        if (firstOfMonth) {
+            const mo = firstOfMonth.getMonth();
+            if (!monthsSeen.has(mo)) {
+                monthsSeen.add(mo);
+                g.append("text").attr("class", "month-label").attr("x", wi * STEP).attr("y", -10).text(_d3.timeFormat("%B")(firstOfMonth));
+            }
+        }
+    });
+    weeks.forEach((weekStart, wi)=>{
+        for(let dow = 0; dow < 7; dow++){
+            const cellDate = _d3.timeDay.offset(weekStart, dow);
+            if (cellDate < _d3.timeDay.floor(minDate) || cellDate > maxDate) continue;
+            const key = fmtKey(cellDate);
+            const d = byDate.get(key);
+            g.append("rect").attr("class", "day-cell").attr("x", wi * STEP).attr("y", dow * STEP).attr("width", CELL).attr("height", CELL).attr("rx", 3).attr("fill", d ? colorScale(d.steps) : "#1e1e1e").attr("stroke", d && d.assignments > 0 ? "#f0c040" : "none").attr("stroke-width", d ? strokeScale(d.assignments) : 0).on("click", ()=>{
+                if (d) {
+                    (0, _linechart.highlightDay)(d.date);
+                    showDetail(d);
+                }
+            });
+        }
+    });
+    const legendW = 140;
+    const legendX = numWeeks * STEP - legendW;
+    const legendY = 7 * STEP + 16;
+    const assignLegendX = MARGIN.left;
+    const assignLegendY = legendY + MARGIN.top - 24;
+    const al = g.append("g").attr("transform", `translate(0,${legendY})`);
+    [
+        0,
+        1,
+        3,
+        5
+    ].forEach((val, i)=>{
+        al.append("rect").attr("x", i * 36).attr("y", 0).attr("width", 14).attr("height", 14).attr("rx", 2).attr("fill", "#1e1e1e").attr("stroke", val > 0 ? "#f0c040" : "#333").attr("stroke-width", strokeScale(val));
+        al.append("text").attr("class", "legend-label").attr("x", i * 36 + 7).attr("y", 26).attr("text-anchor", "middle").text(val === 0 ? "0" : val === 5 ? "5+" : val);
+    });
+    al.append("text").attr("class", "legend-label").attr("x", 0).attr("y", 38).text("Assignments completed (border thickness)");
+    const defs = svg.append("defs");
+    const grad = defs.append("linearGradient").attr("id", "legend-grad");
+    grad.append("stop").attr("offset", "0%").attr("stop-color", "#2a0a10");
+    grad.append("stop").attr("offset", "100%").attr("stop-color", "#e8405a");
+    const lg = g.append("g").attr("transform", `translate(${legendX},${legendY})`);
+    lg.append("rect").attr("width", legendW).attr("height", 8).attr("rx", 2).attr("fill", "url(#legend-grad)");
+    lg.append("text").attr("class", "legend-label").attr("y", 20).text("0 steps");
+    lg.append("text").attr("class", "legend-label").attr("x", legendW).attr("y", 20).attr("text-anchor", "end").text(_d3.max(data, (d)=>d.steps).toLocaleString() + " steps");
+}
+function showDetail(d) {
+    document.getElementById("day-detail").classList.remove("hidden");
+    document.getElementById("detail-date").textContent = _d3.timeFormat("%A, %B %-d, %Y")(d.date);
+    document.getElementById("d-steps").textContent = d.steps.toLocaleString();
+    document.getElementById("d-miles").textContent = d.miles.toFixed(2);
+    document.getElementById("d-cal").textContent = Math.round(d.calories).toLocaleString();
+    document.getElementById("d-flights").textContent = d.flights;
+    document.getElementById("d-study").textContent = d.studyHours;
+    document.getElementById("d-assign").textContent = d.assignments;
+}
+document.getElementById("close-detail").addEventListener("click", ()=>{
+    document.getElementById("day-detail").classList.add("hidden");
+});
+function fmtKey(date) {
+    return _d3.timeFormat("%Y-%m-%d")(date);
+}
+
+},{"./linechart":"3dpNk","d3":"eyk9f","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"3dpNk":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "drawLineChart", ()=>drawLineChart);
+parcelHelpers.export(exports, "highlightDay", ()=>highlightDay);
+var _d3 = require("d3");
+function drawLineChart(data) {
+    const LM = {
+        top: 20,
+        right: 80,
+        bottom: 40,
+        left: 60
+    };
+    const LW = 900 - LM.left - LM.right;
+    const LH = 260 - LM.top - LM.bottom;
+    const svg = _d3.select("#linechart").attr("viewBox", `0 0 ${LW + LM.left + LM.right} ${LH + LM.top + LM.bottom}`).attr("width", LW + LM.left + LM.right).attr("height", LH + LM.top + LM.bottom);
+    svg.append("rect").attr("width", LW + LM.left + LM.right).attr("height", LH + LM.top + LM.bottom).attr("fill", "#0f0f0f");
+    const g = svg.append("g").attr("transform", `translate(${LM.left},${LM.top})`);
+    const xScale = _d3.scaleTime().domain(_d3.extent(data, (d)=>d.date)).range([
+        0,
+        LW
+    ]);
+    const ySteps = _d3.scaleLinear().domain([
+        0,
+        _d3.max(data, (d)=>d.steps)
+    ]).range([
+        LH,
+        0
+    ]);
+    const yAssign = _d3.scaleLinear().domain([
+        0,
+        _d3.max(data, (d)=>d.assignments)
+    ]).range([
+        LH,
+        0
+    ]);
+    g.append("g").attr("transform", `translate(0,${LH})`).call(_d3.axisBottom(xScale).ticks(_d3.timeMonth.every(1)).tickFormat(_d3.timeFormat("%b"))).call((g)=>g.select(".domain").attr("stroke", "#333")).call((g)=>g.selectAll(".tick line").attr("stroke", "#333")).selectAll("text").attr("fill", "#888");
+    g.append("g").call(_d3.axisLeft(ySteps).ticks(5)).call((g)=>g.select(".domain").attr("stroke", "#333")).call((g)=>g.selectAll(".tick line").attr("stroke", "#333")).selectAll("text").attr("fill", "#888");
+    g.append("g").attr("transform", `translate(${LW},0)`).call(_d3.axisRight(yAssign).ticks(5)).call((g)=>g.select(".domain").attr("stroke", "#333")).call((g)=>g.selectAll(".tick line").attr("stroke", "#333")).selectAll("text").attr("fill", "#888");
+    const stepsLine = _d3.line().x((d)=>xScale(d.date)).y((d)=>ySteps(d.steps));
+    g.append("path").datum(data).attr("fill", "none").attr("stroke", "#e8405a").attr("stroke-width", 4).attr("opacity", 1).attr("d", stepsLine);
+    const assignLine = _d3.line().x((d)=>xScale(d.date)).y((d)=>yAssign(d.assignments));
+    g.append("path").datum(data).attr("fill", "none").attr("stroke", "#f0c040").attr("stroke-width", 4).attr("opacity", 1).attr("d", assignLine);
+    g.selectAll(".dot-steps").data(data).enter().append("circle").attr("class", "dot-steps").attr("cx", (d)=>xScale(d.date)).attr("cy", (d)=>ySteps(d.steps)).attr("r", 3).attr("fill", "#e8405a").attr("opacity", 1);
+    g.selectAll(".dot-assign").data(data).enter().append("circle").attr("class", "dot-assign").attr("cx", (d)=>xScale(d.date)).attr("cy", (d)=>yAssign(d.assignments)).attr("r", 3).attr("fill", "#f0c040").attr("opacity", 5);
+}
+function highlightDay(date) {
+    const key = _d3.timeFormat("%Y-%m-%d")(date);
+    _d3.selectAll(".dot-steps").attr("r", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? 6 : 3).attr("stroke", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? "#fff" : "none").attr("stroke-width", 2).attr("opacity", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? 1 : 0.5);
+    _d3.selectAll(".dot-assign").attr("r", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? 6 : 3).attr("stroke", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? "#fff" : "none").attr("stroke-width", 2).attr("opacity", (d)=>_d3.timeFormat("%Y-%m-%d")(d.date) === key ? 1 : 0.5);
+}
+
+},{"d3":"eyk9f","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"70QzG":[function(require,module,exports,__globalThis) {
 module.exports = module.bundle.resolve("data.5e7a8a5e.csv") + "?" + Date.now();
 
 },{}]},["MAtcu","agb61"], "agb61", "parcelRequire31f1", {}, "./", "/")

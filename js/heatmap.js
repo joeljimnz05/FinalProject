@@ -1,4 +1,5 @@
 import { highlightDay } from "./linechart";
+import * as d3 from "d3";
 
 const CELL = 38;
 const GAP = 4;
