@@ -20,8 +20,11 @@
     <section class="viz-section">
       <h2> Dual-Encoded Calendar Heatmap</h2>
       <p class="desc">
-        Each cell represents one day. Fill Color encodes step count: Lighter pink = more steps. Borders indicate num assignments completed; darker border = more assignments.
-        Click a cell to see that day's details.
+        Each cell is one day. Fill color encodes step count (lighter pink = more steps),
+  and border thickness encodes assignments completed that day (thicker gold border =
+  more assignments). The dual encoding lets you scan for days that are bright on both
+  channels — high activity <em>and</em> high output — versus days where one dominates.
+  Click any cell to pull up that day's full stats and highlight it on the line chart below.
       </p>
       <svg id="heatmap"></svg>
       <div id="day-detail" class="day-detail hidden">
@@ -41,7 +44,12 @@
     <section class="viz-section placeholder-section">
       <h2>Steps & Assignments Over Time</h2>
       <p class="desc">
-        Daily step count and assignments completed plotted over time. Click a cell on the heatmap to highlight that day on the chart.
+         Daily step count (pink) and assignments completed (gold) plotted over time. The two
+  series share an x-axis but use independent y-axes, so vertical alignment between the
+  lines reflects same-day co-occurrence rather than identical magnitude. Watch for
+  weeks where the lines rise and fall together versus weeks where they diverge — that's
+  the mixed signal driving this project's open question. Click a heatmap cell above to
+  highlight the corresponding day here.
       </p>
       <svg id="linechart" class="svg"></svg>
     </section>
