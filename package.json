@@ -17,6 +17,7 @@
     "clone": "^2.1.2",
     "color-convert": "^2.0.1",
     "color-name": "^1.1.4",
+    "d3": "^7.9.0",
     "detect-libc": "^1.0.3",
     "dotenv": "^16.6.1",
     "dotenv-expand": "^11.0.7",

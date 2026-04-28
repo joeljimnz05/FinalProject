@@ -177,7 +177,7 @@
 
   // Only insert newRequire.load when it is actually used.
   // The code in this file is linted against ES5, so dynamic import is not allowed.
-  function $parcel$resolve(url) {  url = importMap[url] || url;  return import.meta.resolve(distDir + url);}newRequire.resolve = $parcel$resolve;
+  // INSERT_LOAD_HERE
 
   Object.defineProperty(newRequire, 'root', {
     get: function () {
@@ -715,8 +715,8 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 
 },{}],"f2sJD":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-var _dataCsv = require("url:../static/data.csv");
-var _dataCsvDefault = parcelHelpers.interopDefault(_dataCsv);
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "drawHeatmap", ()=>drawHeatmap);
 const CELL = 38;
 const GAP = 4;
 const STEP = CELL + GAP;
@@ -736,17 +736,6 @@ const DOW_LABELS = [
     "Sun"
 ];
 const colorScale = d3.scaleSequential().interpolator(d3.interpolateRgb("#2a0a10", "#e8405a"));
-d3.csv((0, _dataCsvDefault.default), (d)=>({
-        date: new Date(d.date + "T00:00:00"),
-        steps: +d.steps,
-        miles: +d.distance_miles,
-        calories: +d.active_calories,
-        flights: +d.flights_climbed,
-        studyHours: +d.study_work_hours,
-        assignments: +d.assignments_completed
-    })).then((data)=>{
-    drawHeatmap(data);
-});
 function drawHeatmap(data) {
     const byDate = new Map(data.map((d)=>[
             fmtKey(d.date),
@@ -840,10 +829,7 @@ function fmtKey(date) {
     return d3.timeFormat("%Y-%m-%d")(date);
 }
 
-},{"url:../static/data.csv":"70QzG","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"70QzG":[function(require,module,exports,__globalThis) {
-module.exports = module.bundle.resolve("data.5e7a8a5e.csv") + "?" + Date.now();
-
-},{}],"jnFvT":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"jnFvT":[function(require,module,exports,__globalThis) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -873,6 +859,6 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}]},["1v6s0","f2sJD"], "f2sJD", "parcelRequire31f1", {}, "./", "/")
+},{}]},["1v6s0","f2sJD"], "f2sJD", "parcelRequire31f1", {})
 
 //# sourceMappingURL=FinalProject.8cfa3c72.js.map

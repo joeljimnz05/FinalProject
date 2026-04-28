@@ -157,4 +157,14 @@ main {
   height: 180px;
   display: block;
 }
+
+#linechart {
+  background: #0f0f0f;
+  width: 100%;
+  display: block;
+}
+
+#linechart .domain, #linechart .tick line {
+  stroke: #333;
+}
 /*# sourceMappingURL=FinalProject.b2625c6b.css.map */

@@ -1,4 +1,4 @@
-import dataUrl from "url:../static/data.csv";
+import { highlightDay } from "./linechart";
 
 const CELL = 38;
 const GAP = 4;
@@ -9,20 +9,7 @@ const DOW_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const colorScale = d3.scaleSequential()  
 .interpolator(d3.interpolateRgb("#2a0a10", "#e8405a"));
 
-
-d3.csv(dataUrl, d => ({
-  date:        new Date(d.date + "T00:00:00"),
-  steps:       +d.steps,
-  miles:       +d.distance_miles,
-  calories:    +d.active_calories,
-  flights:     +d.flights_climbed,
-  studyHours:  +d.study_work_hours,
-  assignments: +d.assignments_completed
-})).then(data => {
-  drawHeatmap(data);
-});
-
-function drawHeatmap(data) {
+export function drawHeatmap(data) {
   const byDate = new Map(data.map(d => [fmtKey(d.date), d]));
 
   const strokeScale = d3.scaleLinear()
@@ -95,7 +82,10 @@ function drawHeatmap(data) {
         .attr("fill", d ? colorScale(d.steps) : "#1e1e1e")
         .attr("stroke", d && d.assignments > 0 ? "#f0c040" : "none")
         .attr("stroke-width", d ? strokeScale(d.assignments) : 0)
-        .on("click", () => { if (d) showDetail(d); });
+        .on("click", () => { if (d) {
+
+          highlightDay(d.date);
+          showDetail(d); }});
     }
   });
 
